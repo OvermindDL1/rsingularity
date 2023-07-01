@@ -1,0 +1,22 @@
+[package]
+name = "rsingularity"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bitflags = "2.3.3"
+leptos = { version = "0.4.1", features = ["csr", "serde"] }
+postcard = "1.0.4"
+serde = { version = "1.0.164", default-features = false }
+
+[workspace]
+resolver = "2"
+members = ["xtask"]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
