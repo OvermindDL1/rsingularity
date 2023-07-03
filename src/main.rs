@@ -87,14 +87,14 @@ fn Game(cx: Scope, state: StateRc) -> impl IntoView {
 								{story.get_page().1.iter().cloned().map(|line| view! { cx, <div>{line}</div> }).collect_view(cx)}
 								{if story.get_page().0.is_some() {
 									view! { cx,
-										<div id="story_buttons" style="story_buttons_more">
+										<div id="story_buttons" class="story_buttons_more">
 											<button on:click=move |_ev| active_story.set(story.get_page().0)>Continue</button>
 											<button on:click=move |_ev| active_story.set(None)>Skip</button>
 										</div>
 									}
 								} else {
 									view! { cx,
-										<div id="story_buttons" style="story_buttons_more">
+										<div id="story_buttons" class="story_buttons_more">
 											<button on:click=move |_ev| active_story.set(None)>Ok</button>
 										</div>
 									}
