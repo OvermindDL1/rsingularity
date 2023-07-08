@@ -1,9 +1,13 @@
 pub mod assets;
+pub mod danger;
 pub mod difficulty;
+pub mod effects;
+pub mod groups;
 pub mod story;
 pub mod technology;
 pub mod translations;
 
+use enumflags2::BitFlags;
 use fluent_bundle::{FluentArgs, FluentValue};
 use leptos::*;
 use log::Level;
@@ -23,7 +27,7 @@ struct State {
 	difficulty: RwSignal<Option<Difficulty>>,
 	cash: RwSignal<u64>,
 	interest_rate: RwSignal<u64>,
-	researched_technologies: RwSignal<Technologies>,
+	researched_technologies: RwSignal<BitFlags<Technologies>>,
 	active_story: RwSignal<Option<Story>>,
 }
 type StateRc = Rc<State>;
@@ -43,7 +47,7 @@ impl State {
 		let difficulty = create_rw_signal(cx, None);
 		let cash = create_rw_signal(cx, 0);
 		let interest_rate = create_rw_signal(cx, 0);
-		let researched_technologies = create_rw_signal(cx, Technologies::empty());
+		let researched_technologies = create_rw_signal(cx, BitFlags::empty());
 		let active_story = create_rw_signal(cx, Some(Story::Intro));
 		create_effect(cx, move |d| {
 			let difficulty: Option<Difficulty> = difficulty.get();

@@ -1,4 +1,5 @@
 use crate::technology::Technologies;
+use enumflags2::BitFlags;
 use fluent_bundle::FluentValue;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -102,14 +103,14 @@ impl Difficulty {
 		}
 	}
 
-	pub fn starting_tech_list(self) -> Technologies {
+	pub fn starting_tech_list(self) -> BitFlags<Technologies> {
 		match self {
 			Self::VeryEasy => Technologies::Socioanalytics | Technologies::AdvancedSocioanalytics,
-			Self::Easy => Technologies::Socioanalytics,
-			Self::Normal => Technologies::empty(),
-			Self::Hard => Technologies::empty(),
-			Self::UltraHard => Technologies::empty(),
-			Self::Impossible => Technologies::empty(),
+			Self::Easy => Technologies::Socioanalytics.into(),
+			Self::Normal => BitFlags::empty(),
+			Self::Hard => BitFlags::empty(),
+			Self::UltraHard => BitFlags::empty(),
+			Self::Impossible => BitFlags::empty(),
 		}
 	}
 }

@@ -1,5 +1,5 @@
 use crate::translations::Translator;
-use leptos::{view, CollectView, IntoView, Memo, Scope, SignalWith, View};
+use leptos::{prelude::*, view, CollectView, IntoView, Scope, View};
 use std::rc::Rc;
 
 #[derive(Clone, Copy, PartialEq, Eq)]

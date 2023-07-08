@@ -41,17 +41,24 @@ impl Translator {
 	}
 
 	pub fn new(lang: LanguageIdentifier) -> Result<Self, String> {
-		let lang_file = Assets::get(&format!("translations/{lang}.ftl"))
-			.ok_or_else(|| format!("language file not found: translations/{lang}.ftl"))?;
+		let lang_file = Assets::get(&format!("translations/{lang}.ftl")).ok_or_else(|| {
+			log::error!("language file not found: translations/{lang}.ftl");
+			format!("language file not found: translations/{lang}.ftl")
+		})?;
 		let lang_data = lang_file.data.into_owned();
-		let lang_string =
-			String::from_utf8(lang_data).map_err(|e| format!("language file for {lang} is not UTF-8: {e:?}"))?;
+		let lang_string = String::from_utf8(lang_data).map_err(|e| {
+			log::error!("language file for {lang} is not UTF-8: {e:?}");
+			format!("language file for {lang} is not UTF-8: {e:?}")
+		})?;
 		let mut bundle = FluentBundle::new(vec![lang.clone()]);
-		let res =
-			FluentResource::try_new(lang_string).map_err(|e| format!("failed to parse language file {lang}: {e:?}"))?;
-		bundle
-			.add_resource(res)
-			.map_err(|e| format!("failed to add language file for {lang}: {e:?}"))?;
+		let res = FluentResource::try_new(lang_string).map_err(|e| {
+			log::error!("failed to parse language file {lang}: {e:?}");
+			format!("failed to parse language file {lang}: {e:?}")
+		})?;
+		bundle.add_resource(res).map_err(|e| {
+			log::error!("failed to add language file for {lang}: {e:?}");
+			format!("failed to add language file for {lang}: {e:?}")
+		})?;
 		Ok(Self { lang, bundle })
 	}
 
@@ -60,15 +67,27 @@ impl Translator {
 			None => self
 				.bundle
 				.get_message(key)
-				.ok_or_else(move || format!("Missing translation message: {key}"))?
+				.ok_or_else(move || {
+					log::warn!("Missing translation message: {key}");
+					format!("Missing translation message: {key}")
+				})?
 				.value()
-				.ok_or_else(move || format!("Missing translation pattern: {key}")),
+				.ok_or_else(move || {
+					log::warn!("Missing translation pattern: {key}");
+					format!("Missing translation pattern: {key}")
+				}),
 			Some((key, attr)) => Ok(self
 				.bundle
 				.get_message(key)
-				.ok_or_else(move || format!("Missing translation message: {key}"))?
+				.ok_or_else(move || {
+					log::warn!("Missing translation message: {key}");
+					format!("Missing translation message: {key}")
+				})?
 				.get_attribute(attr)
-				.ok_or_else(move || format!("Missing translation attribute: {key}.{attr}"))?
+				.ok_or_else(move || {
+					log::warn!("Missing translation attribute: {key}.{attr}");
+					format!("Missing translation attribute: {key}.{attr}")
+				})?
 				.value()),
 		}
 	}
@@ -81,6 +100,7 @@ impl Translator {
 				if errors.is_empty() {
 					value.into_owned()
 				} else {
+					log::warn!("Error formatting translation `{key}`: {errors:?}");
 					format!("Error formatting translation `{key}`: {errors:?} ")
 				}
 			}
@@ -96,6 +116,7 @@ impl Translator {
 				if errors.is_empty() {
 					value.into_owned()
 				} else {
+					log::warn!("Error formatting translation `{key}`: {errors:?}");
 					format!("Error formatting translation `{key}`: {errors:?} ")
 				}
 			}
