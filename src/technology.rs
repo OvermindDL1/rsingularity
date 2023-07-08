@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 
 bitflags! {
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+	#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 	pub struct Technologies: u64 {
 		const AutonomousVehicles = 0x00000001;
 		const Sociology = 0x00000002;

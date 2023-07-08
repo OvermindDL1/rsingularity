@@ -35,3 +35,6 @@
 
 # Trunk Source files
 !/index.html
+
+# Included assets
+!/assets/**/*

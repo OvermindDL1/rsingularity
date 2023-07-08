@@ -1,4 +1,5 @@
 use crate::technology::Technologies;
+use fluent_bundle::FluentValue;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Difficulty {
@@ -8,6 +9,19 @@ pub enum Difficulty {
 	Hard,
 	UltraHard,
 	Impossible,
+}
+
+impl From<Difficulty> for FluentValue<'static> {
+	fn from(value: Difficulty) -> Self {
+		match value {
+			Difficulty::VeryEasy => "very-easy".into(),
+			Difficulty::Easy => "easy".into(),
+			Difficulty::Normal => "normal".into(),
+			Difficulty::Hard => "hard".into(),
+			Difficulty::UltraHard => "ultra-hard".into(),
+			Difficulty::Impossible => "impossible".into(),
+		}
+	}
 }
 
 impl Difficulty {

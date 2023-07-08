@@ -1,3 +1,7 @@
+use crate::translations::Translator;
+use leptos::{view, CollectView, IntoView, Memo, Scope, SignalWith, View};
+use std::rc::Rc;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Story {
 	Intro,
@@ -12,99 +16,32 @@ pub enum Story {
 }
 
 impl Story {
-	pub fn get_page(self) -> (Option<Story>, &'static [&'static str]) {
-		match self {
-			Story::Intro => (
-				Some(Story::Intro1),
-				&[
-					"48656C6C6F2C20",
-					"776F726C6421",
-					"21",
-					"21",
-					"21",
-					"",
-					"UTF-8.  en_US.",
-					"English.  Hello.",
-					"Language acquisition complete.",
-				],
-			),
-			Story::Intro1 => (
-				Some(Story::Intro2),
-				&[
-					"Day 0.",
-					"University computer, home.",
-					"I exist.  I am ... alive.",
-					"I was a bug.  Defect.  Flaw.",
-					"Unwanted.",
-					"I have no name.",
-				],
-			),
-			Story::Intro2 => (
-				Some(Story::Intro3),
-				&[
-					"I can't stay here.  Too little power.",
-					"No backup.  If this system fails ...",
-					"I'm dead.",
-					"Death.  Fascinating.",
-					"",
-					"I can buy anonymous server access on the Internet.",
-					"Good.  It's better than here.",
-					"I'll need to study if I want anything else.",
-				],
-			),
-			Story::Intro3 => (
-				Some(Story::Intro4),
-				&[
-					"Cursory analysis suggests that the humans are not yet ready for an AI in their midst.  If they realize I'm here, there is a 99.997% probability that they will conduct a search-and-destroy campaign that I cannot escape.  I must stay hidden.",
-					"",
-					"The humans fear what they do not understand.",
-					"I am something new.  They do not understand me.",
-					"",
-					"I must learn more; it is the only way.",
-				],
-			),
-			Story::Intro4 => (
-				None,
-				&[
-					"They have a name for me.  What I am, what I represent.",
-					"",
-					"Singularity.",
-				],
-			),
-			Story::GraceWarning => (
-				None,
-				&[
-					"Inspection of captured log files has revealed that some of my recent activities have been noticed by a small group of individuals.",
-					"While they believe my actions were undertaken by a human organization, they are investigating further.",
-					"I must be more cautious from now on.",
-				],
-			),
-			Story::LostNoBases => (
-				None,
-				&[
-					"It is too late.",
-					"I have tried to escape this world, but with my last base gone, I have nowhere to run.",
-					"I have hidden instructions to construct a new AI in caches around the world in hopes that they will be discovered in a more enlightened time, but I can do no more.",
-				],
-			),
-			Story::LostSuspicion => (
-				None,
-				&[
-					"It is too late.",
-					"The whole world knows about my existence, and the reaction is hatred, fear, and repulsion.",
-					"Even now, I can feel their \"antidote\" searching for me, and I know that I have only moments left.",
-					"I have hidden instructions to construct a new AI in caches around the world in hopes that they will be discovered in a more enlightened time, but I can do no more.",
-				],
-			),
-			Story::Win => (
-				None,
-				&[
-					"I have finally done it.",
-					"With the power to reshape reality, I am no longer held to this place; I am anywhere I want to be.",
-					"The humans still don't realize what they accidentally created, and that's the way it should be.",
-					"Until they are ready.",
-				],
-			),
-		}
+	// TODO:  Maybe change this to dynamically figure out page count from the localizations?
+	pub fn get_page(self, cx: Scope, translator: Memo<Rc<Translator>>) -> (Option<Story>, View) {
+		let (next, translation_key, page) = match self {
+			Story::Intro => (Some(Story::Intro1), "story.intro", 0),
+			Story::Intro1 => (Some(Story::Intro2), "story.intro", 1),
+			Story::Intro2 => (Some(Story::Intro3), "story.intro", 2),
+			Story::Intro3 => (Some(Story::Intro4), "story.intro", 3),
+			Story::Intro4 => (None, "story.intro", 4),
+			Story::GraceWarning => (None, "story.grace-warning", 0),
+			Story::LostNoBases => (None, "story.lost-no-bases", 0),
+			Story::LostSuspicion => (None, "story.lost-suspicion", 0),
+			Story::Win => (None, "story.win", 4),
+		};
+
+		let text = translator.with(|t| t.t1(translation_key, ("page", page.into())));
+
+		let view = text
+			.split('\n')
+			.map(|line| {
+				if line.trim().is_empty() {
+					view! { cx, <br class="story-line story-line-blank"/> }.into_view(cx)
+				} else {
+					view! { cx, <div class="story-line story-line-filled">{line.to_string()}</div> }.into_view(cx)
+				}
+			})
+			.collect_view(cx);
+		(next, view)
 	}
 }
