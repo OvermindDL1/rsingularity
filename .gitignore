@@ -38,4 +38,5 @@
 !/index.html
 
 # Included assets
-!/assets/**/*
+!/assets/translations/*.ftl
+!/scss/**/*.scss

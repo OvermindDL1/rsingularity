@@ -11,6 +11,7 @@ use web_sys::{HtmlOptionElement, HtmlSelectElement};
 use crate::difficulty::Difficulty;
 use crate::story::Story;
 use crate::technology::Technologies;
+use crate::theme::Theme;
 use crate::translations::Translator;
 
 pub mod assets;
@@ -20,16 +21,19 @@ pub mod effects;
 pub mod groups;
 pub mod story;
 pub mod technology;
+pub mod theme;
 pub mod translations;
 
 struct State {
 	language: RwSignal<LanguageIdentifier>,
 	translations: Memo<Rc<Translator>>,
+	theme: RwSignal<Theme>,
 	difficulty: RwSignal<Option<Difficulty>>,
 	cash: RwSignal<u64>,
 	interest_rate: RwSignal<u64>,
 	researched_technologies: RwSignal<BitFlags<Technologies>>,
 	active_story: RwSignal<Option<Story>>,
+	cheater: RwSignal<bool>,
 }
 type StateRc = Rc<State>;
 
@@ -68,17 +72,19 @@ impl State {
 		Self {
 			language,
 			translations,
+			theme: create_rw_signal(Theme::Default),
 			difficulty,
 			cash,
 			interest_rate,
 			researched_technologies,
 			active_story,
+			cheater: create_rw_signal(false),
 		}
 	}
 
 	pub fn t(&self, key: &'static str) -> impl Fn() -> String {
 		let translations = self.translations;
-		move || translations.with(|t| t.t(&key))
+		move || translations.with(|t| t.t(key))
 	}
 
 	#[allow(dead_code)]
@@ -226,8 +232,9 @@ fn Game(state: StateRc) -> impl IntoView {
 #[component]
 fn App() -> impl IntoView {
 	let state = StateRc::new(State::new());
+	let theme = state.theme;
 	view! {
-		<div id="rsingularity">
+		<div id="rsingularity" class=move || theme.with(Theme::css_class) >
 			{move || match state.difficulty.get() {
 				None => view! { <MainMenu state=state.clone() /> },
 				Some(_) => view! { <Game state=state.clone() /> },
