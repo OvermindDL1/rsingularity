@@ -1,17 +1,9 @@
-pub mod assets;
-pub mod danger;
-pub mod difficulty;
-pub mod effects;
-pub mod groups;
-pub mod story;
-pub mod technology;
-pub mod translations;
+use std::rc::Rc;
 
 use enumflags2::BitFlags;
 use fluent_bundle::{FluentArgs, FluentValue};
 use leptos::*;
 use log::Level;
-use std::rc::Rc;
 use unic_langid::LanguageIdentifier;
 use wasm_bindgen::prelude::*;
 use web_sys::{HtmlOptionElement, HtmlSelectElement};
@@ -20,6 +12,15 @@ use crate::difficulty::Difficulty;
 use crate::story::Story;
 use crate::technology::Technologies;
 use crate::translations::Translator;
+
+pub mod assets;
+pub mod danger;
+pub mod difficulty;
+pub mod effects;
+pub mod groups;
+pub mod story;
+pub mod technology;
+pub mod translations;
 
 struct State {
 	language: RwSignal<LanguageIdentifier>,
@@ -33,9 +34,9 @@ struct State {
 type StateRc = Rc<State>;
 
 impl State {
-	pub fn new(cx: Scope) -> Self {
-		let language = create_rw_signal(cx, unic_langid::langid!("en-US"));
-		let translations = create_memo(cx, move |prior| {
+	pub fn new() -> Self {
+		let language = create_rw_signal(unic_langid::langid!("en-US"));
+		let translations = create_memo(move |prior| {
 			Translator::new(language.get()).map(Rc::new).unwrap_or_else(|e| {
 				Rc::clone(
 					prior
@@ -44,12 +45,12 @@ impl State {
 				)
 			})
 		});
-		let difficulty = create_rw_signal(cx, None);
-		let cash = create_rw_signal(cx, 0);
-		let interest_rate = create_rw_signal(cx, 0);
-		let researched_technologies = create_rw_signal(cx, BitFlags::empty());
-		let active_story = create_rw_signal(cx, Some(Story::Intro));
-		create_effect(cx, move |d| {
+		let difficulty = create_rw_signal(None);
+		let cash = create_rw_signal(0);
+		let interest_rate = create_rw_signal(0);
+		let researched_technologies = create_rw_signal(BitFlags::empty());
+		let active_story = create_rw_signal(Some(Story::Intro));
+		create_effect(move |d| {
 			let difficulty: Option<Difficulty> = difficulty.get();
 			if Some(difficulty) != d {
 				match difficulty {
@@ -130,11 +131,11 @@ impl State {
 }
 
 #[component]
-fn MainMenu(cx: Scope, state: StateRc) -> impl IntoView {
+fn MainMenu(state: StateRc) -> impl IntoView {
 	let State {
 		language, difficulty, ..
 	} = *state;
-	view! { cx,
+	view! {
 		<div id="main_menu">
 			<div id="main_menu_title">{state.t("title")}</div>
 			<div id="main_menu_difficulty">
@@ -168,10 +169,10 @@ fn MainMenu(cx: Scope, state: StateRc) -> impl IntoView {
 						 let current_language=language.get();
 						 Translator::get_languages().into_iter().map(|lang| {
 							 let lang_str = lang.to_string();
-							 view! { cx,
+							 view! {
 								 <option value={&lang_str} selected={current_language==lang}>{lang_str}</option>
 							 }
-						 }).collect_view(cx)
+						 }).collect_view()
 					 }}
 				</select>
 			</div>
@@ -180,31 +181,31 @@ fn MainMenu(cx: Scope, state: StateRc) -> impl IntoView {
 }
 
 #[component]
-fn Game(cx: Scope, state: StateRc) -> impl IntoView {
+fn Game(state: StateRc) -> impl IntoView {
 	let State {
 		translations,
 		active_story,
 		..
 	} = *state;
-	view! { cx,
+	view! {
 		<div id="game">
 			<div id="game_top_bar">TopBarHere</div>
 			<div id="game_body">
 				{move || {
 					if let Some(story) = active_story.get() {
-						let (next_page, story_view) = story.get_page(cx, translations);
-						view! { cx,
+						let (next_page, story_view) = story.get_page(translations);
+						view! {
 							<div id="game_body_story">
 								{story_view}
 								{if next_page.is_some() {
-									view! { cx,
+									view! {
 										<div id="story_buttons" class="story_buttons_more">
 											<button on:click=move |_ev| active_story.set(next_page)>Continue</button>
 											<button on:click=move |_ev| active_story.set(None)>Skip</button>
 										</div>
 									}
 								} else {
-									view! { cx,
+									view! {
 										<div id="story_buttons" class="story_buttons_more">
 											<button on:click=move |_ev| active_story.set(None)>Ok</button>
 										</div>
@@ -213,7 +214,7 @@ fn Game(cx: Scope, state: StateRc) -> impl IntoView {
 							</div>
 						}
 					} else {
-						view! { cx, <div>"hello world?"</div> }
+						view! { <div>"hello world?"</div> }
 					}
 				}}
 			</div>
@@ -223,13 +224,13 @@ fn Game(cx: Scope, state: StateRc) -> impl IntoView {
 }
 
 #[component]
-fn App(cx: Scope) -> impl IntoView {
-	let state = StateRc::new(State::new(cx));
-	view! { cx,
+fn App() -> impl IntoView {
+	let state = StateRc::new(State::new());
+	view! {
 		<div id="rsingularity">
 			{move || match state.difficulty.get() {
-				None => view! { cx, <MainMenu state=state.clone() /> },
-				Some(_) => view! { cx, <Game state=state.clone() /> },
+				None => view! { <MainMenu state=state.clone() /> },
+				Some(_) => view! { <Game state=state.clone() /> },
 			}}
 		</div>
 	}
@@ -241,5 +242,5 @@ fn main() {
 
 	console_log::init_with_level(Level::Trace).unwrap();
 
-	mount_to_body(|cx| view! { cx, <App /> })
+	mount_to_body(|| view! { <App /> })
 }

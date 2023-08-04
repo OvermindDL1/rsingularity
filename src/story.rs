@@ -1,5 +1,5 @@
 use crate::translations::Translator;
-use leptos::{prelude::*, view, CollectView, IntoView, Scope, View};
+use leptos::{prelude::*, view, CollectView, IntoView, View};
 use std::rc::Rc;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -17,7 +17,7 @@ pub enum Story {
 
 impl Story {
 	// TODO:  Maybe change this to dynamically figure out page count from the localizations?
-	pub fn get_page(self, cx: Scope, translator: Memo<Rc<Translator>>) -> (Option<Story>, View) {
+	pub fn get_page(self, translator: Memo<Rc<Translator>>) -> (Option<Story>, View) {
 		let (next, translation_key, page) = match self {
 			Story::Intro => (Some(Story::Intro1), "story.intro", 0),
 			Story::Intro1 => (Some(Story::Intro2), "story.intro", 1),
@@ -36,12 +36,12 @@ impl Story {
 			.split('\n')
 			.map(|line| {
 				if line.trim().is_empty() {
-					view! { cx, <br class="story-line story-line-blank"/> }.into_view(cx)
+					view! { <br class="story-line story-line-blank"/> }.into_view()
 				} else {
-					view! { cx, <div class="story-line story-line-filled">{line.to_string()}</div> }.into_view(cx)
+					view! { <div class="story-line story-line-filled">{line.to_string()}</div> }.into_view()
 				}
 			})
-			.collect_view(cx);
+			.collect_view();
 		(next, view)
 	}
 }

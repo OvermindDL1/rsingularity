@@ -26,6 +26,7 @@
 !/**/Cargo.toml
 !/Cargo.lock
 !/rustfmt.toml
+!/.cargo/config.toml
 
 # Rust Source files
 !/**/src/**/*.rs

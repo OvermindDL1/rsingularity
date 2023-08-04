@@ -12,7 +12,7 @@ enumflags2 = { version = "0.7.7", features = ["serde"] }
 fluent-bundle = "0.15.2"
 fluent-syntax = "0.11.0"
 intl-memoizer = "0.5.1"
-leptos = { version = "0.4.1", features = ["csr", "serde"] }
+leptos = { version = "0.5.0-alpha2", features = ["csr", "serde"] }
 log = "0.4.19"
 postcard = "1.0.4"
 rust-embed = { version = "6.8.1", features = ["debug-embed", "compression"] } # Must embed even in debug mode because this is wasm
