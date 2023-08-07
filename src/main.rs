@@ -1,3 +1,4 @@
+use leptos::html::Textarea;
 use leptos::*;
 use log::Level;
 use wasm_bindgen::prelude::*;
@@ -21,9 +22,12 @@ pub mod translations;
 
 #[component]
 fn MainMenu(state: StateRc) -> impl IntoView {
+	let save_state = state.clone();
+	let load_state = state.clone();
 	let State {
 		language, difficulty, ..
 	} = *state;
+	let load_text_ref = create_node_ref::<Textarea>();
 	view! {
 		<div id="main_menu">
 			<div id="main_menu_title">{state.t("title")}</div>
@@ -38,7 +42,32 @@ fn MainMenu(state: StateRc) -> impl IntoView {
 			</div>
 			<div id="main_menu_load">
 				<div id="main_menu_load_title">{state.t("load-game")}</div>
-				<textarea id="main_menu_load_textarea" placeholder={state.t("load-game.placeholder")}></textarea>
+				<textarea id="main_menu_load_textarea" placeholder={state.t("load-game.placeholder")} node_ref=load_text_ref>{move || {
+					let save_state = save_state.save();
+					let saved = postcard::to_allocvec(&save_state).expect("save state serializes");
+					base2048::encode(&saved) // format!("{saved:?}") //base64::encode(&saved)
+				}}</textarea>
+				<button id="main_menu_load_button" on:click={move |_ev| {
+					let save_state = load_text_ref.get().expect("has node").value();
+					let save_state = match base2048::decode(&save_state) {
+						Some(save_state) => save_state,
+						None => {
+							load_text_ref.get().expect("has node").set_value("Decoding Error: Save state is not base2048");
+							return;
+						}
+					};
+					let save_state = match postcard::from_bytes(&save_state) {
+						Ok(save_state) => save_state,
+						Err(e) => {
+							load_text_ref.get().expect("has node").set_value(&format!("Parsing Error: {}", e));
+							return;
+						}
+					};
+					if let Err(e) = load_state.load(save_state) {
+						load_text_ref.get().expect("has node").set_value(&format!("Loading Error: {}", e));
+						return;
+					}
+				}}>{state.t("load-game.load")}</button>
 			</div>
 			<div id="main_menu_language">
 				<label for="language-select">{state.t("language-selector")}</label>

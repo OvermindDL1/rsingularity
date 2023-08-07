@@ -1,3 +1,4 @@
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub enum Theme {
 	Default,
 	Nightmode,

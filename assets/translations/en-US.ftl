@@ -14,6 +14,7 @@ difficulty = { $level ->
 
 load-game = Load Game
     .placeholder = Paste your saved game here
+    .load = Load
 
 language-selector = Choose a language:
 

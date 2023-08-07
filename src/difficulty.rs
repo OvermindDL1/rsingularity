@@ -2,7 +2,7 @@ use crate::technology::Technologies;
 use enumflags2::BitFlags;
 use fluent_bundle::FluentValue;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub enum Difficulty {
 	VeryEasy,
 	Easy,

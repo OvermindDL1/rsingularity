@@ -2,7 +2,7 @@ use crate::translations::Translator;
 use leptos::{prelude::*, view, CollectView, IntoView, View};
 use std::rc::Rc;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub enum Story {
 	Intro,
 	Intro1,

@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+base2048 = "2.0.2"
 console_error_panic_hook = "0.1.7"
 console_log = { version = "1.0.0", features = ["color"] }
 enumflags2 = { version = "0.7.7", features = ["serde"] }
@@ -14,9 +15,9 @@ fluent-syntax = "0.11.0"
 intl-memoizer = "0.5.1"
 leptos = { version = "0.5.0-alpha2", features = ["csr", "serde"] }
 log = "0.4.19"
-postcard = "1.0.4"
+postcard = { version = "1.0", default-features = false, features = ["alloc"] }
 rust-embed = { version = "6.8.1", features = ["debug-embed", "compression"] } # Must embed even in debug mode because this is wasm
-serde = { version = "1.0.164", default-features = false }
+serde = { version = "1.0.164", default-features = false, features = ["rc"] }
 unic-langid = { version = "0.9.1", features = ["macros", "serde"] }
 wasm-bindgen = "0.2.87"
 web-sys = { version = "0.3.64", features = ["HtmlSelectElement", "Event", "EventTarget", "HtmlCollection", "HtmlOptionElement"] }
