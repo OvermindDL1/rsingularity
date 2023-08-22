@@ -63,7 +63,7 @@ fn main() {
 						.matches(&leptosfmt_version)
 					{
 						eprintln!("leptosfmt version {leptosfmt_version} does not match required version {LEPTOSFMT_REQUIRED_VERSION}");
-						eprintln!("Please run `cargo install leptosfmt` to install a correct version");
+						eprintln!("Please run `cargo install leptosfmt` to install a correct version or run `cargo uninstall leptosfmt` and then run `cargo xtask fmt` again to install the latest version");
 						std::process::exit(1);
 					}
 				}
