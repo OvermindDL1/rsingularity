@@ -96,7 +96,7 @@ impl Translator {
 		match self.get_pattern(key) {
 			Ok(pattern) => {
 				let mut errors = vec![];
-				let value = self.bundle.format_pattern(&pattern, None, &mut errors);
+				let value = self.bundle.format_pattern(pattern, None, &mut errors);
 				if errors.is_empty() {
 					value.into_owned()
 				} else {
@@ -112,7 +112,7 @@ impl Translator {
 		match self.get_pattern(key) {
 			Ok(pattern) => {
 				let mut errors = vec![];
-				let value = self.bundle.format_pattern(&pattern, Some(args), &mut errors);
+				let value = self.bundle.format_pattern(pattern, Some(args), &mut errors);
 				if errors.is_empty() {
 					value.into_owned()
 				} else {

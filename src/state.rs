@@ -1,11 +1,17 @@
 use crate::difficulty::Difficulty;
+#[cfg(feature = "embed-music")]
+use crate::mixer::Mixer;
 use crate::story::Story;
 use crate::technology::Technologies;
 use crate::theme::Theme;
 use crate::translations::Translator;
 use enumflags2::BitFlags;
 use fluent_bundle::{FluentArgs, FluentValue};
-use leptos::{create_effect, create_memo, create_rw_signal, Memo, RwSignal, SignalGet, SignalSet, SignalWith};
+use leptos::html::Audio;
+use leptos::{
+	create_effect, create_memo, create_node_ref, create_rw_signal, Memo, NodeRef, RwSignal, SignalGet,
+	SignalGetUntracked, SignalSet, SignalWith,
+};
 use std::rc::Rc;
 use unic_langid::LanguageIdentifier;
 
@@ -19,6 +25,11 @@ pub struct State {
 	pub researched_technologies: RwSignal<BitFlags<Technologies>>,
 	pub active_story: RwSignal<Option<Story>>,
 	pub cheater: RwSignal<bool>,
+	pub sound_enabled: RwSignal<bool>,
+	pub click_ref: NodeRef<Audio>,
+	pub music_ref: NodeRef<Audio>,
+	#[cfg(feature = "embed-music")]
+	pub mixer: Memo<Mixer>,
 }
 pub type StateRc = Rc<State>;
 
@@ -72,6 +83,26 @@ impl State {
 			}
 			difficulty
 		});
+		let sound_enabled = create_rw_signal(true);
+		// create_effect(move |prior| {
+		// 	let sound_enabled = sound_enabled.get();
+		// 	if sound_enabled != prior {
+		// 		let mixer = Mixer::get();
+		// 			if sound_enabled {
+		// 				m.enable_device();
+		// 			} else {
+		// 				m.disable_device();
+		// 			}
+		// 		});
+		// 	}
+		// 	sound_enabled
+		// });
+		// let mixer = create_memo(move |prior: Option<&Mixer>| {
+		// 	if let Some(prior) = prior {
+		// 		prior.disable_device();
+		// 	}
+		// 	Mixer::new(sound_enabled.get())
+		// });
 		Self {
 			language,
 			translations,
@@ -82,6 +113,11 @@ impl State {
 			researched_technologies,
 			active_story,
 			cheater: create_rw_signal(false),
+			sound_enabled,
+			click_ref: create_node_ref::<Audio>(),
+			music_ref: create_node_ref::<Audio>(),
+			#[cfg(feature = "embed-music")]
+			mixer,
 		}
 	}
 
@@ -122,6 +158,18 @@ impl State {
 		Ok(())
 	}
 
+	pub fn play_click(&self) -> impl Fn() {
+		let sound_enabled = self.sound_enabled;
+		let click_ref = self.click_ref;
+		move || {
+			if sound_enabled.get_untracked() {
+				click_ref
+					.get_untracked()
+					.map(|click_ref| click_ref.play().expect("audio-click plays"));
+			}
+		}
+	}
+
 	pub fn t(&self, key: &'static str) -> impl Fn() -> String {
 		let translations = self.translations;
 		move || translations.with(|t| t.t(key))
@@ -130,7 +178,7 @@ impl State {
 	#[allow(dead_code)]
 	pub fn ta(&self, key: &'static str, args: FluentArgs<'static>) -> impl Fn() -> String {
 		let translations = self.translations;
-		move || translations.with(|t| t.ta(&key, &args))
+		move || translations.with(|t| t.ta(key, &args))
 	}
 
 	#[allow(dead_code)]

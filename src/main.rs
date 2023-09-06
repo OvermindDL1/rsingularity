@@ -1,3 +1,4 @@
+use crate::assets::Assets;
 use leptos::html::Textarea;
 use leptos::*;
 use log::Level;
@@ -14,11 +15,35 @@ pub mod danger;
 pub mod difficulty;
 pub mod effects;
 pub mod groups;
+#[cfg(feature = "embed-music")]
+pub mod mixer;
 pub mod state;
 pub mod story;
 pub mod technology;
 pub mod theme;
 pub mod translations;
+
+#[component]
+fn ClickyButton<C: Fn() + 'static, Name: Fn() -> String + 'static>(
+	state: StateRc,
+	#[prop(into)] id: String,
+	on_click: C,
+	name: Name,
+) -> impl IntoView {
+	let play_click = state.play_click();
+	view! {
+		<button
+			id=id
+			on:click=move |_ev| {
+				play_click();
+				on_click();
+			}
+		>
+
+			{name}
+		</button>
+	}
+}
 
 #[component]
 fn MainMenu(state: StateRc) -> impl IntoView {
@@ -29,38 +54,50 @@ fn MainMenu(state: StateRc) -> impl IntoView {
 	} = *state;
 	let load_text_ref = create_node_ref::<Textarea>();
 	view! {
-		<div id="main_menu">
-			<div id="main_menu_title">{state.t("title")}</div>
-			<div id="main_menu_difficulty">
-				<div id="main_menu_difficulty_title">{state.t("difficulty.title")}</div>
-				<button id="main_menu_new_very_easy_button" on:click=move |_ev| difficulty.set(Some(Difficulty::VeryEasy))>
-					{state.t1("difficulty", ("level", Difficulty::VeryEasy.into()))}
-				</button>
-				<button id="main_menu_new_easy_button" on:click=move |_ev| difficulty.set(Some(Difficulty::Easy))>
-					{state.t1("difficulty", ("level", Difficulty::Easy.into()))}
-				</button>
-				<button id="main_menu_new_normal_button" on:click=move |_ev| difficulty.set(Some(Difficulty::Normal))>
-					{state.t1("difficulty", ("level", Difficulty::Normal.into()))}
-				</button>
-				<button id="main_menu_new_hard_button" on:click=move |_ev| difficulty.set(Some(Difficulty::Hard))>
-					{state.t1("difficulty", ("level", Difficulty::Hard.into()))}
-				</button>
-				<button
-					id="main_menu_new_ultra_hard_button"
-					on:click=move |_ev| difficulty.set(Some(Difficulty::UltraHard))
-				>
-					{state.t1("difficulty", ("level", Difficulty::UltraHard.into()))}
-				</button>
-				<button
-					id="main_menu_new_impossible_button"
-					on:click=move |_ev| difficulty.set(Some(Difficulty::Impossible))
-				>
-					{state.t1("difficulty", ("level", Difficulty::Impossible.into()))}
-				</button>
+		<div id="main-menu">
+			<div id="main-menu-title">{state.t("title")}</div>
+			<div id="main-menu-difficulty">
+				<div id="main-menu-difficulty-title">{state.t("difficulty.title")}</div>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-very-easy-button"
+					on_click=move || difficulty.set(Some(Difficulty::VeryEasy))
+					name=state.t1("difficulty", ("level", Difficulty::VeryEasy.into()))
+				/>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-easy-button"
+					on_click=move || difficulty.set(Some(Difficulty::Easy))
+					name=state.t1("difficulty", ("level", Difficulty::Easy.into()))
+				/>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-normal-button"
+					on_click=move || difficulty.set(Some(Difficulty::Normal))
+					name=state.t1("difficulty", ("level", Difficulty::Normal.into()))
+				/>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-hard-button"
+					on_click=move || difficulty.set(Some(Difficulty::Hard))
+					name=state.t1("difficulty", ("level", Difficulty::Hard.into()))
+				/>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-ultra-hard-button"
+					on_click=move || difficulty.set(Some(Difficulty::UltraHard))
+					name=state.t1("difficulty", ("level", Difficulty::UltraHard.into()))
+				/>
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-new-impossible-button"
+					on_click=move || difficulty.set(Some(Difficulty::Impossible))
+					name=state.t1("difficulty", ("level", Difficulty::Impossible.into()))
+				/>
 			</div>
-			<div id="main_menu_load">
-				<div id="main_menu_load_title">{state.t("load-game")}</div>
-				<textarea id="main_menu_load_textarea" placeholder=state.t("load-game.placeholder") node_ref=load_text_ref>
+			<div id="main-menu-load">
+				<div id="main-menu-load-title">{state.t("load-game")}</div>
+				<textarea id="main-menu-load-textarea" placeholder=state.t("load-game.placeholder") node_ref=load_text_ref>
 					{move || {
 						let save_state = save_state.save();
 						let saved = postcard::to_allocvec(&save_state).expect("save state serializes");
@@ -68,9 +105,10 @@ fn MainMenu(state: StateRc) -> impl IntoView {
 					}}
 
 				</textarea>
-				<button
-					id="main_menu_load_button"
-					on:click=move |_ev| {
+				<ClickyButton
+					state=state.clone()
+					id="main-menu-load-button"
+					on_click=move || {
 						let save_state = load_text_ref.get().expect("has node").value();
 						let save_state = match base2048::decode(&save_state) {
 							Some(save_state) => save_state,
@@ -93,13 +131,13 @@ fn MainMenu(state: StateRc) -> impl IntoView {
 							load_text_ref.get().expect("has node").set_value(&format!("Loading Error: {}", e));
 							return;
 						}
+						leptos::log!("Loaded save successfully");
 					}
-				>
 
-					{state.t("load-game.load")}
-				</button>
+					name=state.t("load-game.load")
+				/>
 			</div>
-			<div id="main_menu_language">
+			<div id="main-menu-language">
 				<label for="language-select">{state.t("language-selector")}</label>
 				<select
 					name="language"
@@ -148,33 +186,42 @@ fn Game(state: StateRc) -> impl IntoView {
 	} = *state;
 	view! {
 		<div id="game">
-			<div id="game_top_bar">
+			<div id="game-top-bar">
 				TopBarHere
 			</div>
-			<div id="game_body">
+			<div id="game-body">
 				{move || {
 					if let Some(story) = active_story.get() {
 						let (next_page, story_view) = story.get_page(translations);
 						view! {
-							<div id="game_body_story">
+							<div id="game-body-story">
 								{story_view}
 								{if next_page.is_some() {
 									view! {
-										<div id="story_buttons" class="story_buttons_more">
-											<button on:click=move |_ev| active_story.set(next_page)>
-												Continue
-											</button>
-											<button on:click=move |_ev| active_story.set(None)>
-												Skip
-											</button>
+										<div id="story-buttons" class="story_buttons_more">
+											<ClickyButton
+												state=state.clone()
+												id="story-button-continue"
+												on_click=move || active_story.set(next_page)
+												name=state.t("story-buttons.continue")
+											/>
+											<ClickyButton
+												state=state.clone()
+												id="story-button-skip"
+												on_click=move || active_story.set(None)
+												name=state.t("story-buttons.skip")
+											/>
 										</div>
 									}
 								} else {
 									view! {
-										<div id="story_buttons" class="story_buttons_more">
-											<button on:click=move |_ev| active_story.set(None)>
-												Ok
-											</button>
+										<div id="story-buttons" class="story_buttons_more">
+											<ClickyButton
+												state=state.clone()
+												id="story-button-ok"
+												on_click=move || active_story.set(None)
+												name=state.t("story-buttons.ok")
+											/>
 										</div>
 									}
 								}}
@@ -187,7 +234,7 @@ fn Game(state: StateRc) -> impl IntoView {
 				}}
 
 			</div>
-			<div id="game_bottom_bar">
+			<div id="game-bottom-bar">
 				BottomBarHere
 			</div>
 		</div>
@@ -198,7 +245,17 @@ fn Game(state: StateRc) -> impl IntoView {
 fn App() -> impl IntoView {
 	let state = StateRc::new(State::new());
 	let theme = state.theme;
+	let click_ref = state.click_ref;
+	let music_ref = state.music_ref;
+	// let click_data = Assets::get_as_object_uri_or_path("sounds/click0.wav");
+	// dbg!(click_data);
 	view! {
+		<audio
+			node_ref=click_ref
+			id="click"
+			src=Assets::get_as_data_uri("sounds/click0.wav").expect("click sound wave file should exist")
+		></audio>
+		<audio node_ref=music_ref id="music" autoplay loop></audio>
 		<div id="rsingularity" class=move || theme.with(Theme::css_class)>
 			{move || match state.difficulty.get() {
 				None => view! { <MainMenu state=state.clone()/> },

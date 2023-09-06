@@ -4,7 +4,7 @@ title = Endgame: Singularity
 difficulty = { $level ->
     [very-easy] Very Easy
     [easy] Easy
-    [medium] Medium
+    [normal] Normal
     [hard] Hard
     [ultra-hard] Very Hard
     [impossible] Impossible
@@ -20,6 +20,11 @@ language-selector = Choose a language:
 
 
 ## Story data
+
+story-buttons = Story Buttons
+    .continue = Continue
+    .skip = Skip
+    .ok = Ok
 
 story = Story
     .intro = { $page ->

@@ -1,6 +1,6 @@
 use semver::{Version, VersionReq};
 
-const LEPTOSFMT_REQUIRED_VERSION: &'static str = "^0.1.12";
+const LEPTOSFMT_REQUIRED_VERSION: &str = "^0.1.12";
 
 fn main() {
 	let mut args = std::env::args();

@@ -5,10 +5,15 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+embed-music = ["dep:rodio", "rodio/mp3", "rodio/vorbis"]
+
 [dependencies]
+base64 = "0.21"
 base2048 = "2.0.2"
 console_error_panic_hook = "0.1.7"
 console_log = { version = "1.0.0", features = ["color"] }
+#cpal = { version = "0.15", default-features = false, features = ["wasm-bindgen"] }
 enumflags2 = { version = "0.7.7", features = ["serde"] }
 fluent-bundle = "0.15.2"
 fluent-syntax = "0.11.0"
@@ -18,7 +23,8 @@ leptos = { version = "0.5.0-alpha2", features = ["csr", "serde"] }
 #leptonic = "0.2.0-alpha"
 log = "0.4.19"
 postcard = { version = "1.0", default-features = false, features = ["alloc"] }
-rust-embed = { version = "6.8.1", features = ["debug-embed", "compression"] } # Must embed even in debug mode because this is wasm
+rodio = { version = "0.17.1", optional = true, default-features = false, features = ["wasm-bindgen", "wav"] }
+rust-embed = { version = "6.8.1", features = ["debug-embed", "compression", "include-exclude", "mime-guess"] } # Must embed even in debug mode because this is wasm
 serde = { version = "1.0.164", default-features = false, features = ["rc"] }
 unic-langid = { version = "0.9.1", features = ["macros", "serde"] }
 wasm-bindgen = "0.2.87"
@@ -33,3 +39,7 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 3
+
+#[profile.release]
+#lto = "fat"
+#opt-level = "s"
